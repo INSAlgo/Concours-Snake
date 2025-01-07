@@ -1,5 +1,5 @@
 from . import my_game as game
 
-NAME = 'My Game'
-COMMAND = 'mgme'
-URL = 'https://github.com/INSAlgo/discord-game-template'
+NAME = 'Snake'
+COMMAND = 'snake'
+URL = 'https://github.com/INSAlgo/Concours-Snake'
