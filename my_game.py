@@ -13,6 +13,9 @@ import argparse, asyncio, os, re, sys
 TIMEOUT_LENGTH = 0.1
 DISCORD_TIMEOUT = 60
 
+WIDTH = 20
+HEIGHT = 20
+
 # Usefull emojis :
 EMOJI_NUMBERS = ('0️⃣', '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣')
 EMOJI_COLORS = ('🟠', '🔴', '🟡', '🟢', '🔵', '🟣', '🟤',  '⚪️', '⚫️')
@@ -47,8 +50,13 @@ class Player(ABC):
         self.rendered_name = None
 
     @abstractmethod
-    async def start_game(self):
+    async def start_game(self, no, w, h, p_pos):
         self.alive = True
+        self.no = no
+        self.w = w
+        self.h = h
+        self.p_pos = p_pos
+        self.pos = p_pos[self.no]
 
     @abstractmethod
     async def lose_game(self):
@@ -89,6 +97,9 @@ class Player(ABC):
         # Here, you can process your userInput,
         # try to get all wrong input cases out as errors
         # to make sure your game doesn't break.
+        moves = ("up", "down", "left", "right")
+        if userInput not in moves:
+            return None, "invalid move"
 
         processed_input: ValidMove = userInput
 
@@ -126,8 +137,8 @@ class Human(Player):
         # Here you can personnalize human players name specifically
         self.rendered_name = f"{self.name} {self.icon}" if name else f"Player {self.icon}"
 
-    async def start_game(self):
-        await super().start_game()
+    async def start_game(self, **kwargs):
+        await super().start_game(**kwargs)
 
     async def lose_game(self):
         await super().lose_game()
@@ -213,7 +224,7 @@ class AI(Player):
     async def start_game(self, **kwargs):
         # You can specify here what parameters are required to start a game for an AI player.
         # For example : board size, number of players...
-        await super().start_game()
+        await super().start_game(**kwargs)
         self.prog = await asyncio.create_subprocess_shell(
             AI.prepare_command(self.prog_path),
             stdin=asyncio.subprocess.PIPE,
@@ -224,7 +235,12 @@ class AI(Player):
         if self.prog.stdin:
             # Here, write the NORMALIZED message you'll send to the AIs for them to start the game.
             # This is what this method's kwargs are for, the AI will need 
-            self.prog.stdin.write(f"Your message here\n".encode())
+            self.prog.stdin.write(f"{self.w} {self.h}\n".encode())
+            self.prog.stdin.write(f"{len(self.p_pos)} {self.no+1}\n".encode())
+
+            for i, pos in enumerate(self.p_pos):
+                self.prog.stdin.write(f"{pos[0]} {pos[1]}\n".encode())
+
             await self.drain()
 
     async def lose_game(self):
@@ -276,7 +292,7 @@ class AI(Player):
     async def tell_move(self, move: ValidInput):
         if self.prog.stdin:
             # The AIs should keep track of who's playing themselves.
-            self.prog.stdin.write(f"{move}n".encode())
+            self.prog.stdin.write(f"{move}\n".encode())
             await self.drain()
 
     async def stop_game(self):
@@ -293,8 +309,49 @@ class AI(Player):
 #  - processing a move
 #  - ...
 
+class MoveError(Exception):
+    pass
 
-async def game(players: list[Human | AI], debug: bool, **kwargs) -> tuple[list[Human | AI], Human | AI | None, dict]:
+class Board:
+    def __init__(self, w: int, h: int, p_pos: list[int]):
+        self.w = w
+        self.h = h
+        self.p_pos = list(p_pos)
+        self.grid = [[0 for _ in range(w)] for _ in range(h)]
+    
+    def get_delta(self, move: str) -> tuple[int, int]:
+        moves = {
+            'up': (0, -1),
+            'down': (0, 1),
+            'left': (-1, 0),
+            'right': (1, 0)
+        }
+        out = moves.get(move, None)
+        if not out:
+            raise ValueError("Invalid move")
+        return out
+
+    def move(self, i: int, move: ValidMove):
+        try:
+            dx, dy = self.get_delta(move)
+        except ValueError:
+            raise ValueError("Invalid move")
+        
+        if not (0 <= i < len(self.p_pos)):
+            raise ValueError("Invalid player")
+        
+        x, y = self.p_pos[i]
+        nx, ny = x + dx, y + dy
+        if not (0 <= nx < self.w and 0 <= ny < self.h):
+            raise MoveError("Out of bounds")
+        
+        if self.grid[ny][nx] != 0:
+            raise MoveError("Collision")
+        
+        self.grid[ny][nx] = i + 1
+        self.p_pos[i] = (nx, ny)
+
+async def game(players: list[Human | AI], p_pos: list[int], w: int, h: int, debug: bool, **kwargs) -> tuple[list[Human | AI], Human | AI | None, dict]:
     """The function handling all the game logic.
     Once again, you can add as many kwargs as you need.
     Note that you can return anything you need that will be treated in `main()` after the specified args.
@@ -310,12 +367,13 @@ async def game(players: list[Human | AI], debug: bool, **kwargs) -> tuple[list[H
     nb_players = len(players)
     alive_players = nb_players
     errors = {} # This is for logging and debugginf purposes
-    starters = (player.start_game(**kwargs) for player in players)
+    starters = (player.start_game(turn, w, h, p_pos) for turn, player in enumerate(players))
     await asyncio.gather(*starters)
     turn = 0
     winner = None
 
     # Initialize general game objects here, like the board
+    board = Board(w, h, p_pos)
 
     # game loop
     while alive_players >= 2:
@@ -325,7 +383,7 @@ async def game(players: list[Human | AI], debug: bool, **kwargs) -> tuple[list[H
         if not player.alive:
             # It is essential to notify of a player "death" so that AIs can skip their turn.
             # Replace `None` by a NORMALIZED simple value signifying an incorrect move. 
-            await player.tell_other_players(players, None)
+            await player.tell_other_players(players, f"death {i}")
 
         else :
             await Player.print() # Render the grid for the player here
@@ -346,23 +404,34 @@ async def game(players: list[Human | AI], debug: bool, **kwargs) -> tuple[list[H
                 alive_players -= 1
                 # It is essential to notify of a player "death" so that AIs can skip their turn.
                 # Replace `None` by a NORMALIZED simple value signifying an incorrect move. 
-                await player.tell_other_players(players, None)
+                await player.tell_other_players(players, f"death {i}")
 
             else:
                 # Apply the user_input to the game here, it already went through sanithization so it is a ValidMove
                 # You'll also need to convert to a ValidInput to notify all the AIs of the played move
-                await player.tell_other_players(players, "valid input here")
-            
+                try:
+                    board.move(i, user_input)
+                except MoveError as e:
+                    await player.lose_game()
+                    await player.tell_other_players(players, f"death {i}")
+                except ValueError as e:
+                    raise # Should not happen
+
+                await player.tell_other_players(players, f"move {i} {user_input}")
+
                 # Check for wins or draw here.
                 # Any end must break the `while alive_players >= 2`.
                 # Do this step early to avoid an infinite loop!
+                
+                # Nothing to do here for snake
         
         turn += 1
 
     if alive_players == 1:
         # nobreak
-        winner = [player for player in players if player.alive][0]
-    
+        # winner = [player for player in players if player.alive][0]
+        winner = next(player for player in players if player.alive)
+
     enders = (player.stop_game() for player in players if isinstance(player, AI))
     await asyncio.gather(*enders)
 
@@ -376,8 +445,12 @@ async def main(raw_args: str = None, ifunc: InputFunction = None, ofunc: OutputF
     parser = argparse.ArgumentParser()
     parser.add_argument("prog", nargs="*", \
             help="AI program to play the game ('user' to play yourself)")
+    parser.add_argument("-g", "--grid", type=int, nargs=2, default=[WIDTH, HEIGHT], metavar=("WIDTH", "HEIGHT"), \
+            help="size of the grid")
     parser.add_argument("-p", "--players", type=int, default=2, metavar="NB_PLAYERS", \
             help="number of players (if more players than programs are provided, the other ones will be filled as real players)")
+    parser.add_argument("-P", "--pos", type=int, nargs=2, action="append", metavar=("X", "Y"), \
+            help="initial position of a player")
     parser.add_argument("-s", "--silent", action="store_true", \
             help="only show the result of the game")
     parser.add_argument("-n", "--nodebug", action="store_true", \
@@ -385,6 +458,8 @@ async def main(raw_args: str = None, ifunc: InputFunction = None, ofunc: OutputF
     # Add here any extra argument you need to define the game (board size for example)
 
     args = parser.parse_args(raw_args)
+    width, height = args.grid
+    p_pos = args.pos
 
     Player.ofunc = ofunc
     players = []
@@ -415,7 +490,8 @@ async def main(raw_args: str = None, ifunc: InputFunction = None, ofunc: OutputF
         else:
             sys.stdout = open(os.devnull, "w")
 
-    players, winner, errors = await game(players, not args.nodebug) # Add extra arguments extracted from `args`
+
+    players, winner, errors = await game(players, p_pos, width, height, not args.nodebug) # Add extra arguments extracted from `args`
 
     if args.silent:
         sys.stdout = origin_stdout
