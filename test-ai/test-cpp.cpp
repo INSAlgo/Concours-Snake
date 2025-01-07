@@ -6,15 +6,17 @@ using namespace std;
 
 int main ()
 {
-    string W, H, N, S, trash;
-    cin >> W >> H >> N >> S;
+    int N, P, W, H;
+    string trash;
+    cin >> N >> P >> W >> H;
+    cin >> trash >> trash >> trash >> trash;
 
     int i = 0;
     while (1)
     {
-        if (i%stoi(N)+1 == stoi(S))
+        if (i % N + 1 == P)
         {
-            cout << 0 << endl;
+            cout << "R" << endl;
         }
         else
         {
