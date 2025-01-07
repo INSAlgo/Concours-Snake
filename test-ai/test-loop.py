@@ -1,14 +1,16 @@
 import time
 
-W, H, N, S = map(int, input().split())
+W, H = map(int, input().split())
+N, P = map(int, input().split())
+j1 = tuple(map(int, input().split()))
+j2 = tuple(map(int, input().split()))
 
-p = 0
-x = 0
+directions = ["U", "R", "D", "L"]
+t = 0
 while True:
     time.sleep(0.08)
-    p = p % N + 1
-    x = (x + 1) % W
-    if p == S:
-        print(x)
+    if t % 2 + 1 == P:
+        print(directions[t % len(directions)])
     else:
         input()
+    t = t + 1
