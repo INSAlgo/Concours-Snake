@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 from abc import ABC, abstractmethod
+import platform
 from typing import Callable, Any
 from io import StringIO
 from pathlib import Path
@@ -10,8 +11,8 @@ import argparse, asyncio, os, re, sys
 # You can add game constants here, like a board size for example
 
 # Default Timeouts :
-TIMEOUT_LENGTH = 0.1
-DISCORD_TIMEOUT = 60
+TIMEOUT_LENGTH = 1 # sec
+DISCORD_TIMEOUT = 60 # sec
 
 WIDTH = 20
 HEIGHT = 20
@@ -57,13 +58,14 @@ class Player(ABC):
         self.h = h
         self.p_pos = p_pos
         self.pos = p_pos[self.no]
+        await Player.print(f"{self} is ready!")
 
     @abstractmethod
     async def lose_game(self):
         await Player.print(f"{self} is eliminated")
 
     @abstractmethod
-    async def ask_move(self, **kwargs) -> tuple[ValidMove, None] | tuple[None | str]:
+    async def ask_move(self, *args, **kwargs) -> tuple[ValidMove, None] | tuple[None | str]:
         pass
 
     @abstractmethod
@@ -137,15 +139,15 @@ class Human(Player):
         # Here you can personnalize human players name specifically
         self.rendered_name = f"{self.name} {self.icon}" if name else f"Player {self.icon}"
 
-    async def start_game(self, **kwargs):
-        await super().start_game(**kwargs)
+    async def start_game(self, *args, **kwargs):
+        await super().start_game(*args, **kwargs)
 
     async def lose_game(self):
         await super().lose_game()
     
     # Don't forget to replace <**kwargs> with the arguments necessary for parsing the input
-    async def ask_move(self, **kwargs):
-        await super().ask_move(**kwargs)
+    async def ask_move(self, *args, **kwargs):
+        await super().ask_move(*args, **kwargs)
         # You can customize your message asking for a move here :
         await Player.print(f"Awaiting {self}'s move : ", end="")
         try:
@@ -188,7 +190,10 @@ class AI(Player):
 
         match path.suffix:
             case ".py":
-                return f"python3 {progPath}"
+                if platform.system() == "Windows":
+                    return f"python {progPath}"
+                else:
+                    return f"python3 {progPath}"
             case ".js":
                 return f"node {progPath}"
             case ".class":
@@ -216,17 +221,20 @@ class AI(Player):
             self.rendered_name = f"AI {self.icon} ({self.name})"
     
     async def drain(self):
+        return
         if self.prog.stdin.transport._conn_lost:
             self.prog.stdin.close()
             self.prog.stdin = asyncio.subprocess.PIPE
-        await self.prog.stdin.drain()
+        else:
+            await self.prog.stdin.drain()
 
-    async def start_game(self, **kwargs):
+    async def start_game(self, *args, **kwargs):
         # You can specify here what parameters are required to start a game for an AI player.
         # For example : board size, number of players...
-        await super().start_game(**kwargs)
+        await super().start_game(*args, **kwargs)
+        cmd = AI.prepare_command(self.prog_path)
         self.prog = await asyncio.create_subprocess_shell(
-            AI.prepare_command(self.prog_path),
+            cmd,
             stdin=asyncio.subprocess.PIPE,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE
@@ -318,7 +326,10 @@ class Board:
         self.h = h
         self.p_pos = list(p_pos)
         self.grid = [[0 for _ in range(w)] for _ in range(h)]
-    
+        for i, pos in enumerate(p_pos):
+            x, y = pos
+            self.grid[y][x] = i + 1
+
     def get_delta(self, move: str) -> tuple[int, int]:
         moves = {
             'up': (0, -1),
@@ -350,6 +361,14 @@ class Board:
         
         self.grid[ny][nx] = i + 1
         self.p_pos[i] = (nx, ny)
+        
+    def display(self):
+        out = StringIO()
+        for y in range(self.h):
+            for x in range(self.w):
+                out.write(EMOJI_COLORS[self.grid[y][x]])
+            out.write("\n")
+        return out
 
 async def game(players: list[Human | AI], p_pos: list[int], w: int, h: int, debug: bool, **kwargs) -> tuple[list[Human | AI], Human | AI | None, dict]:
     """The function handling all the game logic.
@@ -386,7 +405,7 @@ async def game(players: list[Human | AI], p_pos: list[int], w: int, h: int, debu
             await player.tell_other_players(players, f"death {i}")
 
         else :
-            await Player.print() # Render the grid for the player here
+            await Player.print(board.display()) # Render the grid for the player here
 
             # player input
             user_input, error = None, None
@@ -413,6 +432,9 @@ async def game(players: list[Human | AI], p_pos: list[int], w: int, h: int, debu
                     board.move(i, user_input)
                 except MoveError as e:
                     await player.lose_game()
+                    errors[player] = error
+                    player.alive = False
+                    alive_players -= 1
                     await player.tell_other_players(players, f"death {i}")
                 except ValueError as e:
                     raise # Should not happen
@@ -474,9 +496,13 @@ async def main(raw_args: str = None, ifunc: InputFunction = None, ofunc: OutputF
             ai_only = False
         else:
             players.append(AI(i, name, discord))    # Add extra arguments extracted from `args`
+
     while len(players) < args.players:
         players.append(Human(len(players)))         # Add extra arguments extracted from `args`
         ai_only = False
+
+    if p_pos is None:
+        p_pos = [(0, 0), (width-1, height-1), (0, height-1), (width-1, 0)][:len(players)]
 
     origin_stdout = sys.stdout
     if args.silent:
