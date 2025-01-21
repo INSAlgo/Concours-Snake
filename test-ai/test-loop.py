@@ -8,9 +8,9 @@ j2 = tuple(map(int, input().split()))
 directions = ["U", "R", "D", "L"]
 t = 0
 while True:
-    time.sleep(0.08)
-    if t % 2 + 1 == P:
-        print(directions[t % len(directions)])
-    else:
-        input()
-    t = t + 1
+	time.sleep(0.08)
+	if t % 2 + 1 == P:
+		print(directions[t % len(directions)])
+	else:
+		input()
+	t = t + 1
