@@ -150,8 +150,7 @@ class Player(ABC):
                 fp = io.BytesIO()
                 img.save(fp, format="PNG")
                 fp.seek(0)
-                file = discord.File(fp=fp, filename="board.png")
-                await Player.ofunc(file=file)
+                await Player.ofunc(file=fp)
 
     def __str__(self):
         return self.rendered_name
