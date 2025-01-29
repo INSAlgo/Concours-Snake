@@ -19,7 +19,7 @@ fn main() -> Result<()> {
     }
 
     loop {
-        println!("R");
+        println!("right");
         stdin().read_line(&mut buffer)?;
     }
 }

@@ -11,6 +11,6 @@ while True:
     t = t % 2 + 1
     time.sleep(0.08)
     if t == P:
-        print(random.choice(["U", "R", "D", "L"]))
+        print(random.choice(["up", "right", "down", "left"]))
     else:
         input()

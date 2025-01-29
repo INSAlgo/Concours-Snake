@@ -16,7 +16,7 @@ int main ()
     {
         if (i % N + 1 == P)
         {
-            cout << "R" << endl;
+            cout << "right" << endl;
         }
         else
         {

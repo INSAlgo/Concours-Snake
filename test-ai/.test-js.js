@@ -14,6 +14,6 @@ if(stringArray[1]=="2"){
 }
 
 while(1){
-  console.log("R")
+  console.log("right")
   readline();
 }

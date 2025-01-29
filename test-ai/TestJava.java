@@ -18,7 +18,7 @@ class TestJava {
         }
 
         while (true) {
-            System.out.println("R");
+            System.out.println("right");
             scanner.nextLine();
         }
     }

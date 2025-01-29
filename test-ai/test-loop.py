@@ -5,7 +5,7 @@ N, P = map(int, input().split())
 j1 = tuple(map(int, input().split()))
 j2 = tuple(map(int, input().split()))
 
-directions = ["U", "R", "D", "L"]
+directions = ["up", "right", "down", "left"]
 t = 0
 while True:
 	time.sleep(0.08)

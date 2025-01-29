@@ -15,6 +15,6 @@ if (P==2){
 }
 
 while(true){
-	Console.WriteLine("R");
+	Console.WriteLine("right");
 	Console.ReadLine();
 }
