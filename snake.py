@@ -9,7 +9,6 @@ from io import BufferedIOBase, StringIO
 from pathlib import Path
 import argparse, asyncio, os, re, sys
 
-import discord
 from PIL import Image, ImageDraw, ImageFont
 
 # You can add game constants here, like a board size for example
