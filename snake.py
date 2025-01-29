@@ -290,7 +290,7 @@ class AI(Player):
             self.prog.stdin.write(f"{self.w} {self.h}\n".encode())
             self.prog.stdin.write(f"{len(self.p_pos)} {self.no+1}\n".encode())
 
-            for i, pos in enumerate(self.p_pos):
+            for pos in self.p_pos:
                 self.prog.stdin.write(f"{pos[0]} {pos[1]}\n".encode())
 
             await self.drain()

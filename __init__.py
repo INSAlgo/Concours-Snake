@@ -1,4 +1,4 @@
-from . import my_game as game
+from . import snake as game
 
 NAME = 'Snake'
 COMMAND = 'snake'
