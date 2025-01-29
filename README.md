@@ -2,9 +2,10 @@
 
 Bienvenue à la prestigieuse compétition de Snake d'INSAlgo ! 
 
-Il s'agit d'un jeu **tour par tour** en 1 contre 1 dont le but est simple : faire en sorte que la tête du serpent adverce rencontre ou le corps du votre ou bien un mur.
+Il s'agit d'un jeu **tour par tour** en 1 contre 1 dont le but est simple : faire en sorte que la tête du serpent adverse rencontre le corps du votre ou bien un mur.
 
-Pour participer, il vous suffit de développer une petite IA capable jouer au jeu, dans le langage de votre choix. À la fin, toutes les IA vont se rencontrer, et les meilleures remporteront des prix !
+Pour participer, il vous suffit de développer une petite IA capable jouer au jeu, dans le langage de votre choix.
+À la fin, toutes les IA vont se rencontrer, et les meilleures remporteront des prix !
 
 ```plaintext
 🔴🟠🟠🟠🟠🟠🟠🟠🟠🟠
@@ -39,11 +40,12 @@ Votre programme doit ensuite supporter une boucle de jeu :
 
 Pour permettre le debug, les sorties commençant par `>` seront transmises à l'écran en étant ignorées par le jeu.
 
-Un exemple d'IA (pas très intelligente) en Python est donné : [template.py](https://github.com/INSAlgo/Concours-Snake/blob/main/test-ai/template.py). Vous pouvez vous en servire de base pour votre IA.
+Un exemple d'IA très simple en Python est donné : [template.py](https://github.com/INSAlgo/Concours-Snake/blob/main/test-ai/template.py). Vous pouvez vous en servire de base pour votre IA.
 
 ## Tester un programme en local
 
-Récupérez le script [snake.py](https://github.com/INSAlgo/Concours-Snake/blob/main/snake.py). Ce script fournit un certain nombre d'outils pour tester et debugger votre programme :
+Récupérez le script [snake.py](https://github.com/INSAlgo/Concours-Snake/blob/main/snake.py).
+Ce script fournit un certain nombre d'outils pour tester et debugger votre programme :
 
 `python snake.py [OPTIONS] [prog1, prog2, ..., progN]`
 
@@ -72,16 +74,22 @@ Les programmes acceptés sont :
 
 ## Déroulement du concours
 
-Pour être tenu au courant du déroulement du concours, venez sur le [Discord d'INSAlgo](https://discord.gg/ph3DZQuXGP). La phase de développement des IA s'étent jusqu'au 21 février, pendant laquelle les participants peuvent soumettre leur code.
+Pour être tenu au courant du déroulement du concours, venez sur le [Discord d'INSAlgo](https://discord.gg/ph3DZQuXGP).
+La phase de développement des IA s'étent jusqu'au 21 février, pendant laquelle les participants peuvent soumettre leur code.
 
-A la fin, votre programme participera à un tournoi qui fera se rencontrer toutes les IA. Chaque IA jouera 2 fois contre chacune des autres IA, une fois en jouant en premier, une fois en laissant l'adversaire commencer. Une victoire rapporte un point, une défaite ou une égalité ne rapporte pas de point. Un temps de réponse trop long ou un coup invalide fait perdre le match au programme.
+A la fin, votre programme participera à un tournoi qui fera se rencontrer toutes les IA.
+Chaque IA jouera 2 fois contre chacune des autres IA, une fois en jouant en premier, une fois en laissant l'adversaire commencer.
+Une victoire rapporte un point, une défaite ou une égalité ne rapporte pas de point.
+Un temps de réponse trop long ou un coup invalide fait perdre le match au programme.
 
 ## Participer au concours
 
-Les soumissions sont faites par message privé au bot Dijkstra-Chan du serveur Discord. Pour ce faire, envoyez la commande `!game submit snake` avec votre fichier attaché dans le même message. Donnez comme nom à votre programme votre pseudo.
+Les soumissions sont faites par message privé au bot Dijkstra-Chan du serveur Discord.
+Pour ce faire, envoyez la commande `!game submit snake` avec votre fichier attaché dans le même message.
+Donnez comme nom à votre programme votre pseudo.
 
 Votre dernière soumission vous représentera lors du tournoi final.
-Pour le tournoi, transmettez votre code source et non un executable.
+Pour le tournoi, transmettez votre code source et non un exécutable.
 Les langages acceptés sont :
  - Python `.py`
  - JavaScript `.js`
@@ -99,7 +107,9 @@ Tous les étudiants de l'INSA Lyon peuvent participer. Il est autorisé de parti
 
 Les soumissions se terminent le 21 février 2025 à 18h.
 
-Les soumissions doivent être ORIGINALES, c'est-à-dire ne pas implémenter une solution toute prête trouvée sur internet. Les organisateurs vérifieront le code avant de valider les gagnants, alors soyez honnêtes ! Pour rendre cette tache plus facile, écrivez autant que possible du code lisible et commenté.
+Les soumissions doivent être ORIGINALES, c'est-à-dire ne pas implémenter une solution toute prête trouvée sur internet.
+Les organisateurs vérifieront le code avant de valider les gagnants, alors soyez honnêtes !
+Pour rendre cette tache plus facile, écrivez autant que possible du code lisible et commenté.
 
 Les prix sont :
  - **64 €** pour le premier
@@ -108,6 +118,7 @@ Les prix sont :
 
 Les membres du bureau d'INSAlgo et ceux qui ont aidé à préparer le concours ne peuvent pas gagner les prix :'(
 
-Si un groupe gagne, la récompense est par groupe et non par personnes. Si des égalités se présentent, les personnes/groupes à égalité se partageront la somme des prix, par exemple :
+Si un groupe gagne, la récompense est par groupe et non par personnes.
+Si des égalités se présentent, les personnes/groupes à égalité se partageront la somme des prix, par exemple :
   - 1er : Bob -> il gagne 64 €
   - 2e ex-aequo : Alice et Eve -> elles gagnent chacune (32+16)/2 = 24 €
