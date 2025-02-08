@@ -2,14 +2,17 @@
 
 from __future__ import annotations
 from abc import ABC, abstractmethod
-import io
-import platform
 from typing import Callable, Any
-from io import BufferedIOBase, StringIO
+from io import StringIO, BytesIO
 from pathlib import Path
-import argparse, asyncio, os, re, sys
+import argparse
+import asyncio
+import os
+import platform
+import re
+import sys
 
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw
 
 # You can add game constants here, like a board size for example
 
@@ -146,7 +149,7 @@ class Player(ABC):
                     for x, char in enumerate(line):
                         draw.circle(((x+0.5)*CELL_SIZE + SIDE_OFFSET, (y+0.5)*CELL_SIZE + SIDE_OFFSET), radius, CODE_COLORS[char])
 
-                fp = io.BytesIO()
+                fp = BytesIO()
                 img.save(fp, format="PNG")
                 fp.seek(0)
                 await Player.ofunc(file=fp)
