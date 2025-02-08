@@ -28,8 +28,8 @@ SIDE_OFFSET = 20
 
 # Usefull emojis :
 EMOJI_NUMBERS = ("0️⃣", "1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣")
-EMOJI_COLORS = ("🟠", "🔴", "🟡", "🟢", "🔵", "🟣", "🟤", "⚪️", "⚫️")
-CODE_COLORS = ("ff6723", "f8312f", "fcd53f", "00d26a", "0074ba", "8d65c5", "6d4534", "ffffff", "000000")
+EMOJI_COLORS = ("🟡", "🔴", "🔵", "🟢", "🟠", "🟣", "🟤", "⚪️", "⚫️")
+CODE_COLORS = ("fcd53f", "f8312f", "0074ba", "00d26a", "ff6723", "8d65c5", "6d4534", "ffffff", "000000")
 CODE_COLORS = dict(zip(EMOJI_COLORS, ('#'+col for col in CODE_COLORS)))
 
 # what is the type of a valid move or a valid input (when it has a specific format) to use in typing
@@ -261,6 +261,8 @@ class AI(Player):
         # Once again, you can personnalize how the AI player will be called during the game here
         if discord:
             # if it's through discord, self.name should be the discord user's ID
+            if self.name.startswith("ai_"):
+                self.name = self.name[3:]
             self.rendered_name = f"<@{self.name}>'s AI {self.icon}"
         else:
             self.rendered_name = f"AI {self.icon} ({self.name})"
@@ -459,7 +461,7 @@ async def game(
             await player.tell_other_players(players, f"death {i}")
 
         else:
-            await Player.print(f"Turn {turn} : player {player}")
+            await Player.print(f"**Turn {turn} **: player {player}")
             await Player.print(board.display())  # Render the grid for the player here
 
             # player input
