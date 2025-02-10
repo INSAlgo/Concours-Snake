@@ -268,7 +268,6 @@ class AI(Player):
             self.rendered_name = f"AI {self.icon} ({self.name})"
 
     async def drain(self):
-        return
         if self.prog.stdin.transport._conn_lost:
             self.prog.stdin.close()
             self.prog.stdin = asyncio.subprocess.PIPE
@@ -357,11 +356,13 @@ class AI(Player):
             await self.drain()
 
     async def stop_game(self):
+        print(f'Stopping AI {self.icon} ({self.name})')
         try:
             self.prog.terminate()
             await self.prog.wait()
         except ProcessLookupError:
             pass
+        print(f'AI {self.icon} ({self.name}) stopped')
 
 
 # Here is a place to define functions useful for your game, typically:
