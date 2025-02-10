@@ -356,13 +356,15 @@ class AI(Player):
             await self.drain()
 
     async def stop_game(self):
-        print(f'Stopping AI {self.icon} ({self.name})')
         try:
             self.prog.terminate()
-            await self.prog.wait()
+            try:
+                await asyncio.wait_for(self.prog.wait(), timeout=10)
+            except asyncio.TimeoutError:
+                self.prog.kill()
+                await self.prog.wait()
         except ProcessLookupError:
             pass
-        print(f'AI {self.icon} ({self.name}) stopped')
 
 
 # Here is a place to define functions useful for your game, typically:
