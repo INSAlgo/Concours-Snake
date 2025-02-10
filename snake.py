@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 from abc import ABC, abstractmethod
+from collections import deque
 from typing import Callable, Any
 from io import StringIO, BytesIO
 from pathlib import Path
@@ -49,7 +50,7 @@ class Player(ABC):
 
     ofunc = None
 
-    def __init__(self, no: int, name: str = None, **kwargs):
+    def __init__(self, no: int, name: str, growth_rate: int, **kwargs):
         """The abstract Player constructor
 
         Args:
@@ -64,6 +65,7 @@ class Player(ABC):
         self.icon = self.no
         self.name = name
         self.rendered_name = None
+        self.growth_rate = growth_rate
 
     @abstractmethod
     async def start_game(self, no, w, h, p_pos):
@@ -72,7 +74,7 @@ class Player(ABC):
         self.w = w
         self.h = h
         self.p_pos = p_pos
-        self.pos = p_pos[self.no]
+
         await Player.print(f"{self} is ready!")
 
     @abstractmethod
@@ -297,7 +299,6 @@ class AI(Player):
 
             await self.drain()
 
-            pass
     async def lose_game(self):
         await super().lose_game()
 
@@ -379,11 +380,15 @@ class MoveError(Exception):
 
 
 class Board:
-    def __init__(self, w: int, h: int, p_pos: list[int]):
+    def __init__(self, w: int, h: int, p_pos: list[int], growth_rate: int):
         self.w = w
         self.h = h
-        self.p_pos = list(p_pos)
+        self.turn = 0
+        self.growth_rate = growth_rate
+
+        self.bodies = [deque([pos]) for pos in p_pos]
         self.grid = [[0 for _ in range(w)] for _ in range(h)]
+
         for i, pos in enumerate(p_pos):
             x, y = pos
             self.grid[y][x] = i + 1
@@ -401,10 +406,12 @@ class Board:
         except ValueError:
             raise ValueError("Invalid move")
 
-        if not (0 <= i < len(self.p_pos)):
+        if not (0 <= i < len(self.bodies)):
             raise ValueError("Invalid player")
 
-        x, y = self.p_pos[i]
+        body = self.bodies[i]
+        x, y = body[0]
+
         nx, ny = x + dx, y + dy
         if not (0 <= nx < self.w and 0 <= ny < self.h):
             raise MoveError("Out of bounds")
@@ -413,7 +420,11 @@ class Board:
             raise MoveError("Collision")
 
         self.grid[ny][nx] = i + 1
-        self.p_pos[i] = (nx, ny)
+        body.appendleft((nx, ny))
+
+        if self.turn % self.growth_rate != 0:
+            tail = body.pop()
+            self.grid[tail[1]][tail[0]] = 0
 
     def display(self):
         out = StringIO()
@@ -426,7 +437,7 @@ class Board:
 
 
 async def game(
-    players: list[Human | AI], p_pos: list[int], w: int, h: int, debug: bool, **kwargs
+    players: list[Human | AI], p_pos: list[int], w: int, h: int, growth_rate: int, debug: bool, **kwargs
 ) -> tuple[list[Human | AI], Human | AI | None, dict]:
     """The function handling all the game logic.
     Once again, you can add as many kwargs as you need.
@@ -451,7 +462,7 @@ async def game(
     winner = None
 
     # Initialize general game objects here, like the board
-    board = Board(w, h, p_pos)
+    board = Board(w, h, p_pos, growth_rate)
 
     # game loop
     while alive_players >= 2:
@@ -508,6 +519,7 @@ async def game(
                 # Nothing to do here for snake
 
         turn += 1
+        board.turn = turn
 
     if alive_players == 1:
         # nobreak
@@ -568,32 +580,43 @@ async def main(
         action="store_true",
         help="do not print the debug output of the programs",
     )
-    # Add here any extra argument you need to define the game (board size for example)
+
+    parser.add_argument(
+        "-G",
+        "--growth_rate",
+        type=int,
+        default=5,
+        metavar="GROWTH_RATE",
+        help="the snake will grow by one cell every GROWTH_RATE moves",
+    )
+
 
     args = parser.parse_args(raw_args)
     width, height = args.grid
     p_pos = args.pos
+    growth_rate = args.growth_rate
 
     Player.ofunc = ofunc
     players = []
     ai_only = True
     pattern = re.compile(r"^\<\@[0-9]{18}\>$")
+    kwargs = {"growth_rate": growth_rate}
     for i, name in enumerate(args.prog):
         if name == "user":
-            players.append(Human(i))  # Add extra arguments extracted from `args`
+            players.append(Human(i, **kwargs))  # Add extra arguments extracted from `args`
             ai_only = False
         elif pattern.match(name):
             players.append(
-                Human(i, name, ifunc)
+                Human(i, name, ifunc, **kwargs)
             )  # Add extra arguments extracted from `args`
             ai_only = False
         else:
             players.append(
-                AI(i, name, discord)
+                AI(i, name, discord, **kwargs)
             )  # Add extra arguments extracted from `args`
 
     while len(players) < args.players:
-        players.append(Human(len(players)))  # Add extra arguments extracted from `args`
+        players.append(Human(len(players), **kwargs))  # Add extra arguments extracted from `args`
         ai_only = False
 
     if p_pos is None:
@@ -614,7 +637,7 @@ async def main(
             sys.stdout = open(os.devnull, "w")
 
     players, winner, errors = await game(
-        players, p_pos, width, height, not args.nodebug
+        players, p_pos, width, height, growth_rate, not args.nodebug
     )  # Add extra arguments extracted from `args`
 
     if args.silent:

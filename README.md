@@ -59,6 +59,7 @@ Les options sont :
   - `-s` : mode silencieux
   - `-g W H` (par défaut `W` = 10, `H` = 10) : la taille de la grille
   - `-p N` (par défaut, `N` = 2) : nombre de joueurs
+  - `-G M` (par défaut, `M` = 5) : les serpents grandissent d'une case tous les M tours
 
 Un exemple plus compliqué : partie à 4 joueurs dont 2 IA et 2 humains sur une grille 20x20 :
 
