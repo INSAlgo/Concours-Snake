@@ -40,8 +40,7 @@
             pkgs.valgrind
 
             # Rust development
-            pkgs.rustup
-            pkgs.cargo
+            pkgs.rustc
 
             # Java development
             pkgs.jdk23

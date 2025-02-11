@@ -10,7 +10,8 @@ fn main() -> Result<()> {
     stdin().read_line(&mut buffer)?;
 
     stdin().read_line(&mut buffer)?;
-    let vec: Vec<&str> = buffer.trim_end().split(' ').collect();
+    let trimmed_buffer = buffer.trim_end().to_string();
+    let vec: Vec<&str> = trimmed_buffer.split(' ').collect();
 
     stdin().read_line(&mut buffer)?;
     stdin().read_line(&mut buffer)?;
