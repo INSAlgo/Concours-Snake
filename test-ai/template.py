@@ -1,41 +1,47 @@
-W, H, N, S = map(int, input().split())
+import sys
 
-# Fonction pour savoir à quelle hauteur va tomber pion
-def fallHeight(board, x):
-    y = len(board[x])
-    while board[x][y - 1] == 0 and y > 0:
-        y -= 1
-    return y
+W, H = map(int, input().split())
+G = int(input())
+N, P = map(int, input().split())
+heads = [tuple(map(int, input().split())) for _ in range(N)]
+players = [[heads[p]] for p in range(N)]
+directions2deltas = {
+    "up": (0, -1),
+    "right": (1, 0),
+    "down": (0, 1),
+    "left": (-1, 0),
+}
 
-# Calcul du meilleur coup à jouer étant donné l'état de la grille
-def strategy(board):
-    # Recherche de la première colonne non pleine
-    x = 0
-    while board[x][H - 1] != 0:
-        x += 1
-    return x
+
+def update_position(player, direction, turn):
+    x, y = heads[player]
+    dx, dy = directions2deltas[direction]
+    head = x + dx, y + dy
+    heads[player] = head
+    players[player].append(head)
+    if (turn // N) % G != 0:
+        players[player].pop(0)
+
 
 def main():
-
-    board = [[0 for _ in range(H)] for _ in range(W)]
-    player = 0
+    turn = 0
 
     while True:
-        player = player % N + 1
+        player = turn % N
 
         # Tour de notre IA
-        if player == S:
-            x = strategy(board)
-            print(f"> {x} {fallHeight(board, x)}")  # Debug
-            print(x)
+        if player == P - 1:
+            direction = "right"
+            update_position(player, direction, turn)
+            print(direction)
+            sys.stdout.flush()
         # Tour adversaire
         else:
-            x = int(input())
-
-        # Mise à jour de la grille en interne
-        if x >= 0 :
-            y = fallHeight(board, x)
-            board[x][y] = player
+            direction = input().split()[2]
+            print(f"> {direction}")  # Debug
+            update_position(player, direction, turn)
+        
+        turn += 1
 
 if __name__ == "__main__":
     main()
