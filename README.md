@@ -2,9 +2,9 @@
 
 Bienvenue à la prestigieuse compétition de Snake d'INSAlgo ! 
 
-Il s'agit d'un jeu **tour par tour** en 1 contre 1 dont le but est simple : faire en sorte que la tête du serpent adverse rencontre le corps du votre ou bien un mur.
+Il s'agit d'un jeu **tour par tour** en 1 contre 1 dont le but est simple : faire en sorte que la tête du serpent adverse rencontre le corps du votre, du sien ou bien un mur.
 
-Pour participer, il vous suffit de développer une petite IA capable jouer au jeu, dans le langage de votre choix.
+Pour participer, il vous suffit de développer une petite IA capable jouer au jeu, dans le langage de votre choix dans la palette disponible.
 À la fin, toutes les IA vont se rencontrer, et les meilleures remporteront des prix !
 
 ```plaintext
