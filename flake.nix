@@ -29,9 +29,7 @@
 
             # Python development
             pythonPackages.python
-
-            # Python development
-            pkgs.python3
+            pythonPackages.pillow
 
             # C/C++ development
             pkgs.gcc
