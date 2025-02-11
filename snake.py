@@ -227,7 +227,7 @@ class AI(Player):
         """
         path = Path(progPath)
 
-        use_firejail = sys.environ.get("FIREJAIL_AVAILABLE") == "1"
+        use_firejail = os.environ.get("FIREJAIL_AVAILABLE") == "1"
 
         if use_firejail:
             root = '/home/debian/Dijkstra-Chan/games/Concours-Snake/ai'
@@ -250,7 +250,7 @@ class AI(Player):
                 cmd = f"./{progPath}"
 
         if use_firejail:
-            cmd = f'firejail --net=none --read-only=/ --private={root} {cmd}'
+            cmd = f'firejail --net=none --read-only=/ --private=/home/debian/Dijkstra-Chan/games/Concours-Snake/ai {cmd}'
 
         return cmd
 
@@ -409,7 +409,7 @@ class Board:
         self.grid[ny][nx] = i + 1
         body.appendleft((nx, ny))
 
-        if self.turn % self.growth_rate < len(self.bodies)-1:
+        if (self.turn // len(self.bodies)) % self.growth_rate != 0:
             tail = body.pop()
             self.grid[tail[1]][tail[0]] = 0
 
