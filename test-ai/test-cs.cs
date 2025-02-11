@@ -1,6 +1,7 @@
 // See https://aka.ms/new-console-template for more information
 
 Console.ReadLine();
+Console.ReadLine();
 
 string input = Console.ReadLine();
 string[] numbers = input.Split(' ');

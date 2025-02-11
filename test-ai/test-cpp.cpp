@@ -6,15 +6,15 @@ using namespace std;
 
 int main ()
 {
-    int N, P, W, H;
+    int W, H, G, N, P;
     string trash;
-    cin >> N >> P >> W >> H;
+    cin >> W >> H >> G >> N >> P;
     cin >> trash >> trash >> trash >> trash;
 
     int i = 0;
     while (1)
     {
-        if (i % N + 1 == P)
+        if (i % N == P - 1)
         {
             cout << "right" << endl;
         }

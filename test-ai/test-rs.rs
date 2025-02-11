@@ -7,6 +7,7 @@ fn main() -> Result<()> {
     let mut buffer = String::new();
 
     stdin().read_line(&mut buffer)?;
+    stdin().read_line(&mut buffer)?;
 
     stdin().read_line(&mut buffer)?;
     let vec: Vec<&str> = buffer.trim_end().split(' ').collect();

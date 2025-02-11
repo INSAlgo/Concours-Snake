@@ -6,6 +6,7 @@ class TestJava {
         Scanner scanner = new Scanner(System.in);
 
         scanner.nextLine();
+        scanner.nextLine();
 
         int N = scanner.nextInt();
         int P = scanner.nextInt();
