@@ -8,6 +8,7 @@ from io import StringIO, BytesIO
 from pathlib import Path
 import argparse
 import asyncio
+import contextlib
 import os
 import platform
 import re
@@ -29,7 +30,7 @@ SIDE_OFFSET = 20
 EMOJI_NUMBERS = ("0️⃣", "1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣")
 EMOJI_COLORS = ("🟡", "🔴", "🔵", "🟢", "🟠", "🟣", "🟤", "⚪️", "⚫️")
 CODE_COLORS = ("fcd53f", "f8312f", "0074ba", "00d26a", "ff6723", "8d65c5", "6d4534", "ffffff", "000000")
-CODE_COLORS = dict(zip(EMOJI_COLORS, ('#'+col for col in CODE_COLORS)))
+CODE_COLORS = dict(zip(EMOJI_COLORS, (f'#{col}' for col in CODE_COLORS)))
 
 # what is the type of a valid move or a valid input (when it has a specific format) to use in typing
 ValidMove = Any
@@ -199,14 +200,14 @@ class Human(Player):
         return await super().tell_move(move)
 
     async def input(self):
-        if self.ifunc:
-            user_input = await asyncio.wait_for(
-                self.ifunc(self.name), timeout=DISCORD_TIMEOUT
-            )
-            await Player.print(user_input, send_discord=False)
-            return user_input
-        else:
+        if not self.ifunc:
             return input()
+
+        user_input = await asyncio.wait_for(
+            self.ifunc(self.name), timeout=DISCORD_TIMEOUT
+        )
+        await Player.print(user_input, send_discord=False)
+        return user_input
 
 
 class AI(Player):
@@ -250,7 +251,7 @@ class AI(Player):
                 cmd = f"./{progPath}"
 
         if use_firejail:
-            cmd = f'firejail --net=none --read-only=/ --private=/home/debian/Dijkstra-Chan/games/Concours-Snake/ai {cmd}'
+            cmd = f'firejail --net=none --read-only=/ --private={root} {cmd}'
 
         return cmd
 
@@ -302,6 +303,7 @@ class AI(Player):
     async def ask_move(
         self, debug: bool = True, **kwargs
     ) -> tuple[tuple[int, int] | None, str | None]:
+        # sourcery skip: remove-unnecessary-else, swap-if-else-branches
         await super().ask_move(**kwargs)
         try:
             while True:
@@ -349,15 +351,13 @@ class AI(Player):
             self.prog.stdin.write(f"{move}\n".encode())
 
     async def stop_game(self):
-        try:
+        with contextlib.suppress(ProcessLookupError):
             self.prog.terminate()
             try:
                 await asyncio.wait_for(self.prog.wait(), timeout=10)
             except asyncio.TimeoutError:
                 self.prog.kill()
                 await self.prog.wait()
-        except ProcessLookupError:
-            pass
 
 
 # Game functions
@@ -382,16 +382,16 @@ class Board:
 
     def get_delta(self, move: str) -> tuple[int, int]:
         moves = {"up": (0, -1), "down": (0, 1), "left": (-1, 0), "right": (1, 0)}
-        out = moves.get(move, None)
-        if not out:
+        if out := moves.get(move):
+            return out
+        else:
             raise ValueError("Invalid move")
-        return out
 
     def move(self, i: int, move: ValidMove):
         try:
             dx, dy = self.get_delta(move)
-        except ValueError:
-            raise ValueError("Invalid move")
+        except ValueError as e:
+            raise ValueError("Invalid move") from e
 
         if not (0 <= i < len(self.bodies)):
             raise ValueError("Invalid player")
@@ -607,7 +607,8 @@ async def main(
             output = StringIO("Game cannot be silent since humans are playing")
             tmp = output.getvalue()
             await Player.print(output)
-            raise Exception(tmp)
+            raise ValueError(tmp)
+
         if discord:
             Player.ofunc = None
         else:
