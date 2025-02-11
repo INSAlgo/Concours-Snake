@@ -273,13 +273,6 @@ class AI(Player):
         else:
             self.rendered_name = f"AI {self.icon} ({self.name})"
 
-    async def drain(self):
-        return
-        if self.prog.stdin.transport._conn_lost:
-            self.prog.stdin.close()
-            self.prog.stdin = asyncio.subprocess.PIPE
-        else:
-            await self.prog.stdin.drain()
 
     async def start_game(self, *args, **kwargs):
         # You can specify here what parameters are required to start a game for an AI player.
@@ -302,8 +295,6 @@ class AI(Player):
 
             for pos in self.p_pos:
                 self.prog.stdin.write(f"{pos[0]} {pos[1]}\n".encode()) # Initial positions of each player
-
-            await self.drain()
 
     async def lose_game(self):
         await super().lose_game()
@@ -360,7 +351,6 @@ class AI(Player):
         if self.prog.stdin:
             # The AIs should keep track of who's playing themselves.
             self.prog.stdin.write(f"{move}\n".encode())
-            await self.drain()
 
     async def stop_game(self):
         try:
