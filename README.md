@@ -34,7 +34,7 @@ La communication avec votre programme est automatisée. Les entrées se présent
 
 Votre programme doit ensuite supporter une boucle de jeu :
 
- - Lire le coup de votre adversaire : une chaine de charactères (parmi `up`, `down`, `left`, `right`), la direction dans laquelle l'adversaire s'est déplacé d'une case.
+ - Lire le coup de votre adversaire : une chaine de charactères sous la forme `move P DIR` avec `P` le numéro du joueur et DIR la direction (parmi `up`, `down`, `left`, `right`) dans laquelle l'adversaire s'est déplacé d'une case.
  - Afficher son coup : la direction de déplacement (`up`, `down`, `left`, `right`).
 
  Si `P` = 1, votre programme doit jouer en premier, donc affiche son coup. Si `P` = 2, il doit d'abord lire le coup de l'adversaire.
@@ -70,14 +70,14 @@ Les programmes acceptés sont :
  - les scripts Python `.py`
  - les scripts JavaScript `.js`
  - les classes java compilées `.class`
- - Les exécutables compilés (C, C++, ...)
+ - Les exécutables compilés (C++, ...)
 
 # Le concours
 
 ## Déroulement du concours
 
-Pour être tenu au courant du déroulement du concours, venez sur le [Discord d'INSAlgo](https://discord.gg/ph3DZQuXGP).
-La phase de développement des IA s'étent jusqu'au 21 février, pendant laquelle les participants peuvent soumettre leur code.
+Pour être tenu au courant du déroulement du concours, venez sur le [Discord d'INSAlgo](https://discord.gg/68NE6tGMVk).
+La phase de développement des IA, pendant laquelle les participants peuvent soumettre leur code, s'étent jusqu'au 11 mars.
 
 A la fin, votre programme participera à un tournoi qui fera se rencontrer toutes les IA.
 Chaque IA jouera 2 fois contre chacune des autres IA, une fois en jouant en premier, une fois en laissant l'adversaire commencer.
@@ -93,10 +93,9 @@ Donnez comme nom à votre programme votre pseudo.
 Votre dernière soumission vous représentera lors du tournoi final.
 Pour le tournoi, transmettez votre code source et non un exécutable.
 Les langages acceptés sont :
- - Python `.py`
+ - Python 3 `.py`
  - JavaScript `.js`
  - C++ `.cpp` (qui sera compilé avec g++ en O3)
- - C `.c` (qui sera compilé avec gcc en O3)
  - Java `.java`
  - C# `.cs`
  - Rust `.rs`
@@ -107,7 +106,7 @@ Si vous souhaitez participer avec un autre langage, contactez un membre de burea
 
 Tous les étudiants de l'INSA Lyon peuvent participer. Il est autorisé de participer à plusieurs, danc ce cas, soumettez un seul programme pour le groupe.
 
-Les soumissions se terminent le 21 février 2025 à 18h.
+Les soumissions se terminent le 11 mars 2025 à 18h.
 
 Les soumissions doivent être ORIGINALES, c'est-à-dire ne pas implémenter une solution toute prête trouvée sur internet.
 Les organisateurs vérifieront le code avant de valider les gagnants, alors soyez honnêtes !
