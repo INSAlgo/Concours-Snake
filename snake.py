@@ -15,8 +15,6 @@ import sys
 
 from PIL import Image, ImageDraw
 
-# You can add game constants here, like a board size for example
-
 # Default Timeouts :
 TIMEOUT_LENGTH = 1  # sec
 DISCORD_TIMEOUT = 60  # sec
@@ -51,7 +49,8 @@ class Player(ABC):
     ofunc = None
 
     def __init__(self, no: int, name: str, growth_rate: int, **kwargs):
-        """The abstract Player constructor
+        """
+        The abstract Player constructor
 
         Args:
             no (int): player number/id
@@ -61,7 +60,6 @@ class Player(ABC):
 
         self.no = no
 
-        # These can be altered to give personnality to your game display (with emojis for example)
         self.icon = self.no
         self.name = name
         self.rendered_name = None
@@ -99,7 +97,8 @@ class Player(ABC):
     async def sanithize(
         userInput: str, **kwargs
     ) -> tuple[ValidMove, None] | tuple[None | str]:
-        """Parses raw user input text into an error message or a valid move
+        """
+        Parses raw user input text into an error message or a valid move
 
         Args:
             userInput (`str`): the raw user input text
@@ -107,18 +106,12 @@ class Player(ABC):
         Returns:
             `tuple[ValidMove, None] | tuple[None | str]`
         """
-        # You can add any number of kwargs you want
-        # that will be necessary to parse the input
-        # (like the game board for example),
-        # just remember to pass them when calling this method.
 
         if userInput == "stop":
             # When a human player (or an AI, who knows) wants to abandon.
             return None, "user interrupt"
 
-        # Here, you can process your userInput,
-        # try to get all wrong input cases out as errors
-        # to make sure your game doesn't break.
+        # process user inputs
         moves = ("up", "down", "left", "right", "ready")
         if userInput not in moves:
             await Player.print(f"invalid move: {userInput}")
@@ -165,7 +158,8 @@ class Human(Player):
     def __init__(
         self, no: int, name: str = None, ifunc: InputFunction = None, **kwargs
     ):
-        """The human player constructor
+        """
+        The human player constructor
         Let ifunc be None to get terminal input (for a local game)
 
         Args:
@@ -176,7 +170,7 @@ class Human(Player):
         super().__init__(no, name, **kwargs)
         self.ifunc = ifunc
 
-        # Here you can personnalize human players name specifically
+        # Personnalize human players name specifically
         self.rendered_name = (
             f"{self.name} {self.icon}" if name else f"Player {self.icon}"
         )
@@ -187,10 +181,9 @@ class Human(Player):
     async def lose_game(self):
         await super().lose_game()
 
-    # Don't forget to replace <**kwargs> with the arguments necessary for parsing the input
     async def ask_move(self, *args, **kwargs):
         await super().ask_move(*args, **kwargs)
-        # You can customize your message asking for a move here :
+
         await Player.print(f"Awaiting {self}'s move : ", end="")
         try:
             user_input = await self.input()
@@ -199,7 +192,7 @@ class Human(Player):
                 f"User did not respond in time (over {DISCORD_TIMEOUT}s)"
             )
             return None, "timeout"
-        # This is where the kwargs are usefull :
+    
         return await Human.sanithize(user_input, **kwargs)
 
     async def tell_move(self, move: ValidInput):
@@ -220,7 +213,8 @@ class AI(Player):
 
     @staticmethod
     def prepare_command(progPath: str | Path):
-        """Prepares the command to start the AI
+        """
+        Prepares the command to start the AI
 
         Args:
             progPath (`str` | `Path`): the path to the program
@@ -254,7 +248,8 @@ class AI(Player):
         return cmd
 
     def __init__(self, no: int, prog_path: str, discord: bool, **kwargs):
-        """The AI player constructor
+        """
+        The AI player constructor
 
         Args:
             no (int): player number/id
@@ -264,7 +259,6 @@ class AI(Player):
         super().__init__(no, Path(prog_path).stem, **kwargs)
         self.prog_path = prog_path
 
-        # Once again, you can personnalize how the AI player will be called during the game here
         if discord:
             # if it's through discord, self.name should be the discord user's ID
             if self.name.startswith("ai_"):
@@ -275,8 +269,7 @@ class AI(Player):
 
 
     async def start_game(self, *args, **kwargs):
-        # You can specify here what parameters are required to start a game for an AI player.
-        # For example : board size, number of players...
+        # Specify here what parameters are required to start a game for an AI player.
         await super().start_game(*args, **kwargs)
         cmd = AI.prepare_command(self.prog_path)
         self.prog = await asyncio.create_subprocess_shell(
@@ -299,7 +292,6 @@ class AI(Player):
     async def lose_game(self):
         await super().lose_game()
 
-    # Don't forget to replace <**kwargs> with the arguments necessary for parsing the input
     async def ask_move(
         self, debug: bool = True, **kwargs
     ) -> tuple[tuple[int, int] | None, str | None]:
@@ -311,7 +303,6 @@ class AI(Player):
                 progInput = await asyncio.wait_for(
                     self.prog.stdout.readuntil(), TIMEOUT_LENGTH
                 )
-                # progInput = await self.read_until_delimiter(self.prog.stdout, TIMEOUT_LENGTH)
 
                 if not isinstance(progInput, bytes):
                     continue
@@ -337,14 +328,12 @@ class AI(Player):
                 else:
                     break
 
-            # You can customize the message all bots will send to announce their moves here :
             await Player.print(f"{self}'s move : {progInput}")
 
         except (asyncio.TimeoutError, asyncio.exceptions.IncompleteReadError) as e:
             await Player.print(f"AI did not respond in time (over {TIMEOUT_LENGTH}s)")
             return None, "timeout"
 
-        # This is where the kwargs are usefull :
         return await AI.sanithize(progInput, **kwargs)
 
     async def tell_move(self, move: ValidInput):
@@ -364,12 +353,7 @@ class AI(Player):
             pass
 
 
-# Here is a place to define functions useful for your game, typically:
-#  - checking for a win or a draw,
-#  - drawing the grid in terminal or in discord
-#  - processing a move
-#  - ...
-
+# Game functions
 
 class MoveError(Exception):
     pass
@@ -435,7 +419,8 @@ class Board:
 async def game(
     players: list[Human | AI], p_pos: list[int], w: int, h: int, growth_rate: int, debug: bool, **kwargs
 ) -> tuple[list[Human | AI], Human | AI | None, dict]:
-    """The function handling all the game logic.
+    """
+    The function handling all the game logic.
     Once again, you can add as many kwargs as you need.
     Note that you can return anything you need that will be treated in `main()` after the specified args.
 
@@ -449,7 +434,7 @@ async def game(
 
     nb_players = len(players)
     alive_players = nb_players
-    errors = {}  # This is for logging and debugginf purposes
+    errors = {}
     starters = (
         player.start_game(turn, w, h, p_pos) for turn, player in enumerate(players)
     )
@@ -457,7 +442,6 @@ async def game(
     turn = 0
     winner = None
 
-    # Initialize general game objects here, like the board
     board = Board(w, h, p_pos, growth_rate)
 
     # game loop
@@ -466,8 +450,6 @@ async def game(
         player = players[i]
 
         if not player.alive:
-            # It is essential to notify of a player "death" so that AIs can skip their turn.
-            # Replace `None` by a NORMALIZED simple value signifying an incorrect move.
             await player.tell_other_players(players, f"death {i}")
 
         else:
@@ -477,7 +459,6 @@ async def game(
             # player input
             user_input, error = None, None
             while not user_input:
-                # Don't forget to give the kwargs necessary for an AI (or a player) to understand what's asked
                 user_input, error = await player.ask_move(debug, **kwargs)
                 if isinstance(player, AI) or error in ("user interrupt", "timeout"):
                     break
@@ -488,8 +469,6 @@ async def game(
                 errors[player] = error
                 player.alive = False
                 alive_players -= 1
-                # It is essential to notify of a player "death" so that AIs can skip their turn.
-                # Replace `None` by a NORMALIZED simple value signifying an incorrect move.
                 await player.tell_other_players(players, f"death {i}")
 
             else:
@@ -518,14 +497,11 @@ async def game(
         board.turn = turn
 
     if alive_players == 1:
-        # nobreak
-        # winner = [player for player in players if player.alive][0]
         winner = next(player for player in players if player.alive)
 
     enders = (player.stop_game() for player in players if isinstance(player, AI))
     await asyncio.gather(*enders)
 
-    # You can add extra returned stuff here, like the final board and other stuff
     return players, winner, errors
 
 
@@ -535,8 +511,6 @@ async def main(
     ofunc: OutputFunction = None,
     discord=False,
 ):
-    # these arguments should not be messed with because that's how the discord bot works
-
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "prog", nargs="*", help="AI program to play the game ('user' to play yourself)"
@@ -599,20 +573,20 @@ async def main(
     kwargs = {"growth_rate": growth_rate}
     for i, name in enumerate(args.prog):
         if name == "user":
-            players.append(Human(i, **kwargs))  # Add extra arguments extracted from `args`
+            players.append(Human(i, **kwargs)) 
             ai_only = False
         elif pattern.match(name):
             players.append(
                 Human(i, name, ifunc, **kwargs)
-            )  # Add extra arguments extracted from `args`
+            )
             ai_only = False
         else:
             players.append(
                 AI(i, name, discord, **kwargs)
-            )  # Add extra arguments extracted from `args`
+            )
 
     while len(players) < args.players:
-        players.append(Human(len(players), **kwargs))  # Add extra arguments extracted from `args`
+        players.append(Human(len(players), **kwargs))
         ai_only = False
 
     if p_pos is None:
@@ -634,7 +608,7 @@ async def main(
 
     players, winner, errors = await game(
         players, p_pos, width, height, growth_rate, not args.nodebug
-    )  # Add extra arguments extracted from `args`
+    )
 
     if args.silent:
         sys.stdout = origin_stdout
@@ -648,7 +622,7 @@ async def main(
         players,
         winner,
         errors,
-    )  # this should not be messed with because that's how the discord bot works
+    )
 
 
 if __name__ == "__main__":
