@@ -28,7 +28,8 @@ La communication avec votre programme est automatisée. Les entrées se présent
 
  Au début de la partie :
  - Sur une première ligne, 2 entiers séparés par un espace : `W` la largeur de la grille et `H` la hauteur de la grille.
- - Sur la deuxième ligne, 2 entiers séparés par un espace : `N` (2 <= `N` <= 4) le nombre de joueurs (pour le concours, on aura toujours `N` = 2, mais vous pouvez supporter des parties multijoueurs si ça vous amuse). Et `P` le tour auquel votre programme commence à jouer (1 <= `P` <= `N`).
+ - Sur la deuxième ligne, un entier `M`, la vitesse de croissance des serpents: une case tout les `M` tours.
+ - Sur la troisième ligne, 2 entiers séparés par un espace : `N` (2 <= `N` <= 4) le nombre de joueurs (pour le concours, on aura toujours `N` = 2, mais vous pouvez supporter des parties multijoueurs si ça vous amuse). Et `P` le tour auquel votre programme commence à jouer (1 <= `P` <= `N`).
  - Sur les `N` lignes suivantes, 2 entiers séparés par un espace : `X`<sub>`i`</sub> et `Y`<sub>`i`</sub> la position de départ du joueur `i`.
 
 Votre programme doit ensuite supporter une boucle de jeu :

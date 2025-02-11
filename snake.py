@@ -238,15 +238,34 @@ class AI(Player):
         match path.suffix:
             case ".py":
                 if platform.system() == "Windows":
-                    return f"python {progPath}"
+                    cmd = f"python {progPath}"
                 else:
-                    return f"python3 {progPath}"
+                    cmd = f"python3 {progPath}"
             case ".js":
-                return f"node {progPath}"
+                cmd = f"node {progPath}"
             case ".class":
-                return f"java -cp {os.path.dirname(progPath)} {os.path.splitext(os.path.basename(progPath))[0]}"
+                cmd = f"java -cp {os.path.dirname(progPath)} {os.path.splitext(os.path.basename(progPath))[0]}"
             case _:
-                return f"./{progPath}"
+                cmd = f"./{progPath}"
+
+        if platform.system() != "Windows":
+            # Firejail doesn't exists on Windows, this should be disabled for debug
+            # DO NOT run this game in prod on Windows!
+            options = [
+                "quiet", # No startup message
+                "private", # Run in a temp directory
+                "seccomp", # Prevent dangerous syscalls
+                "noroot", # Run as a non-root user
+                "noexec", # Prevent execution of new binaries
+                "net=none" # No network access
+            ]
+            
+            options = " ".join(f"--{option}" for option in options)
+            cmd = f'firejail {options} {cmd}'
+            
+            # firejail --quiet --private --seccomp --noroot --noexec --net=none <cmd>
+
+        return cmd
 
     def __init__(self, no: int, prog_path: str, discord: bool, **kwargs):
         """The AI player constructor
@@ -258,7 +277,6 @@ class AI(Player):
         """
         super().__init__(no, Path(prog_path).stem, **kwargs)
         self.prog_path = prog_path
-        self.command = AI.prepare_command(self.prog_path)
 
         # Once again, you can personnalize how the AI player will be called during the game here
         if discord:
@@ -291,11 +309,12 @@ class AI(Player):
         if self.prog.stdin:
             # Here, write the NORMALIZED message you'll send to the AIs for them to start the game.
             # This is what this method's kwargs are for, the AI will need
-            self.prog.stdin.write(f"{self.w} {self.h}\n".encode())
-            self.prog.stdin.write(f"{len(self.p_pos)} {self.no+1}\n".encode())
+            self.prog.stdin.write(f"{self.w} {self.h}\n".encode()) # Grid size
+            self.prog.stdin.write(f"{self.growth_rate}\n".encode()) # Growth rate
+            self.prog.stdin.write(f"{len(self.p_pos)} {self.no+1}\n".encode()) # Number of players and player number
 
             for pos in self.p_pos:
-                self.prog.stdin.write(f"{pos[0]} {pos[1]}\n".encode())
+                self.prog.stdin.write(f"{pos[0]} {pos[1]}\n".encode()) # Initial positions of each player
 
             await self.drain()
 
