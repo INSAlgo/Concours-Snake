@@ -14,8 +14,6 @@ import platform
 import re
 import sys
 
-from PIL import Image, ImageDraw
-
 # Default Timeouts :
 TIMEOUT_LENGTH = 1  # sec
 DISCORD_TIMEOUT = 60  # sec
@@ -134,21 +132,31 @@ class Player(ABC):
             if len(text) < 300:
                 await Player.ofunc(text)
             else:
-                # Create a blank image with white background
-                img = Image.new("RGB", (WIDTH * CELL_SIZE + 2*SIDE_OFFSET, HEIGHT * CELL_SIZE + 2*SIDE_OFFSET), color="#313338")
-                draw = ImageDraw.Draw(img)
-
-                radius = CELL_SIZE//2*0.7
-
-                # Draw the grid
-                for y, line in enumerate(text.split("\n")):
-                    for x, char in enumerate(line):
-                        draw.circle(((x+0.5)*CELL_SIZE + SIDE_OFFSET, (y+0.5)*CELL_SIZE + SIDE_OFFSET), radius, CODE_COLORS[char])
-
-                fp = BytesIO()
-                img.save(fp, format="PNG")
-                fp.seek(0)
+                fp = Player.board_as_img(text)
                 await Player.ofunc(file=fp)
+
+    @staticmethod
+    def board_as_img(text: str) -> BytesIO:
+        # Avoid importing external libraries when it's not needed
+        # This function is only called on discord
+        from PIL import Image, ImageDraw
+
+
+        # Create a blank image with white background
+        img = Image.new("RGB", (WIDTH * CELL_SIZE + 2*SIDE_OFFSET, HEIGHT * CELL_SIZE + 2*SIDE_OFFSET), color="#313338")
+        draw = ImageDraw.Draw(img)
+
+        radius = CELL_SIZE//2*0.7
+
+        # Draw the grid
+        for y, line in enumerate(text.split("\n")):
+            for x, char in enumerate(line):
+                draw.circle(((x+0.5)*CELL_SIZE + SIDE_OFFSET, (y+0.5)*CELL_SIZE + SIDE_OFFSET), radius, CODE_COLORS[char])
+
+        fp = BytesIO()
+        img.save(fp, format="PNG")
+        fp.seek(0)
+        
 
     def __str__(self):
         return self.rendered_name
