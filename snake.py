@@ -226,6 +226,13 @@ class AI(Player):
             `str`: the command to start the AI
         """
         path = Path(progPath)
+
+        use_firejail = sys.environ.get("FIREJAIL_AVAILABLE") == "1"
+
+        if use_firejail:
+            root = '/home/debian/Dijkstra-Chan/games/Concours-Snake/ai'
+            progPath = os.path.relpath(progPath, root)
+
         if not path.is_file():
             raise FileNotFoundError(f"File {progPath} not found\n")
 
@@ -242,8 +249,8 @@ class AI(Player):
             case _:
                 cmd = f"./{progPath}"
 
-        if sys.environ.get("FIREJAIL_AVAILABLE") == "1":
-            cmd = f'firejail --net=none --read-only=/ --private=/home/debian/Dijkstra-Chan/games/Concours-Snake/ai {cmd}'
+        if use_firejail:
+            cmd = f'firejail --net=none --read-only=/ --private={root} {cmd}'
 
         return cmd
 
