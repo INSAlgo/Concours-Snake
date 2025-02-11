@@ -1,5 +1,3 @@
-![INSAlgo Challenge Code ton IA pour Snake_v6](https://github.com/user-attachments/assets/b0c658f6-d44c-4e15-8d52-f35e3e506999)# Tournoi de Snake d'INSAlgo
-
 Bienvenue à la prestigieuse compétition de Snake d'INSAlgo ! 
 
 Il s'agit d'un jeu **tour par tour** en 1 contre 1 dont le but est simple : faire en sorte que la tête du serpent adverse rencontre le corps du votre, du sien ou bien un mur.
