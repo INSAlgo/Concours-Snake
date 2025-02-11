@@ -1,4 +1,4 @@
-# Tournoi de Snake d'INSAlgo
+![INSAlgo Challenge Code ton IA pour Snake_v6](https://github.com/user-attachments/assets/b0c658f6-d44c-4e15-8d52-f35e3e506999)# Tournoi de Snake d'INSAlgo
 
 Bienvenue à la prestigieuse compétition de Snake d'INSAlgo ! 
 
@@ -123,3 +123,5 @@ Si un groupe gagne, la récompense est par groupe et non par personnes.
 Si des égalités se présentent, les personnes/groupes à égalité se partageront la somme des prix, par exemple :
   - 1er : Bob -> il gagne 64 €
   - 2e ex-aequo : Alice et Eve -> elles gagnent chacune (32+16)/2 = 24 €
+
+![INSAlgo Challenge Code ton IA pour Snake_v6](https://github.com/user-attachments/assets/df842439-b64f-4883-87da-1d66049e311b)
