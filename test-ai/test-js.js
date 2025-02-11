@@ -1,20 +1,27 @@
-//const readline = require("readline");
+import readline from 'readline';
 
-readLine();
-readLine();
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout
+});
 
-const line = readLine();
+rl.question('', (answer1) => {
+  rl.question('', (answer2) => {
+    const line = answer2;
 
-const stringArray = str.split(/(\s+)/);
+    const stringArray = line.split(/(\s+)/);
 
-readLine();
-readLine();
+    rl.question('', (answer3) => {
+      rl.question('', (answer4) => {
+        if (stringArray[1] == "2") {
+          rl.question('', () => {});
+        }
 
-if(stringArray[1]=="2"){
-  readline();
-}
-
-while(1){
-  console.log("right")
-  readline();
-}
+        while (true) {
+          console.log("right");
+          rl.question('', () => {});
+        }
+      });
+    });
+  });
+});

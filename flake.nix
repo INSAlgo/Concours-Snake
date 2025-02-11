@@ -29,7 +29,9 @@
 
             # Python development
             pythonPackages.python
-            pythonPackages.pillow
+
+            # JS development
+            pkgs.nodejs
 
             # C/C++ development
             pkgs.gcc
