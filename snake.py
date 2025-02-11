@@ -248,22 +248,8 @@ class AI(Player):
             case _:
                 cmd = f"./{progPath}"
 
-        if platform.system() != "Windows":
-            # Firejail doesn't exists on Windows, this should be disabled for debug
-            # DO NOT run this game in prod on Windows!
-            options = [
-                "quiet", # No startup message
-                "private", # Run in a temp directory
-                "seccomp", # Prevent dangerous syscalls
-                "noroot", # Run as a non-root user
-                "noexec", # Prevent execution of new binaries
-                "net=none" # No network access
-            ]
-            
-            options = " ".join(f"--{option}" for option in options)
-            cmd = f'firejail {options} {cmd}'
-            
-            # firejail --quiet --private --seccomp --noroot --noexec --net=none <cmd>
+        if sys.environ.get("FIREJAIL_AVAILABLE") == "1":
+            cmd = f'firejail --net=none --read-only=/ --private=/home/debian/Dijkstra-Chan/games/Concours-Snake/ai {cmd}'
 
         return cmd
 
@@ -288,6 +274,7 @@ class AI(Player):
             self.rendered_name = f"AI {self.icon} ({self.name})"
 
     async def drain(self):
+        return
         if self.prog.stdin.transport._conn_lost:
             self.prog.stdin.close()
             self.prog.stdin = asyncio.subprocess.PIPE
@@ -441,7 +428,7 @@ class Board:
         self.grid[ny][nx] = i + 1
         body.appendleft((nx, ny))
 
-        if self.turn % self.growth_rate != 0:
+        if self.turn % self.growth_rate < len(self.bodies)-1:
             tail = body.pop()
             self.grid[tail[1]][tail[0]] = 0
 

@@ -1,7 +1,7 @@
-import time
 import sys
 
 W, H = map(int, input().split())
+G = int(input())
 N, P = map(int, input().split())
 players = [tuple(map(int, input().split())) for _ in range(N)]
 
@@ -16,7 +16,6 @@ def is_clear(x, y):
 
 def handle_enemy():
 	move = input()
-	pass
 
 t = 0
 while True:
