@@ -1,6 +1,7 @@
 //const readline = require("readline");
 
 readLine();
+readLine();
 
 const line = readLine();
 
