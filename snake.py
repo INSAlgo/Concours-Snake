@@ -221,7 +221,7 @@ class Human(Player):
 class AI(Player):
 
     @staticmethod
-    def prepare_command(progPath: str | Path):
+    def prepare_command(prog_path: str | Path):
         """
         Prepares the command to start the AI
 
@@ -234,32 +234,24 @@ class AI(Player):
         Returns:
             `str`: the command to start the AI
         """
-        path = Path(progPath)
-
-        use_firejail = os.environ.get("FIREJAIL_AVAILABLE") == "1"
-
-        if use_firejail:
-            root = "/home/debian/Dijkstra-Chan/games/Concours-Snake/ais"
-            progPath = os.path.relpath(progPath, root)
-
-        if not path.is_file():
-            raise FileNotFoundError(f"File {progPath} not found\n")
+        path = Path(prog_path).resolve(strict=True)
 
         match path.suffix:
             case ".py":
                 if platform.system() == "Windows":
-                    cmd = f"python {progPath}"
+                    cmd = f"python {path}"
                 else:
-                    cmd = f"python3 {progPath}"
+                    cmd = f"python3 {path}"
             case ".js":
-                cmd = f"node {progPath}"
+                cmd = f"node {path}"
             case ".class":
-                cmd = f"java -cp {os.path.dirname(progPath)} {os.path.splitext(os.path.basename(progPath))[0]}"
+                cmd = f"java -cp {path.parent} {path.stem}"
             case _:
-                cmd = f"./{progPath}"
+                cmd = f"./{path}"
 
+        use_firejail = os.environ.get("FIREJAIL_AVAILABLE") == "1"
         if use_firejail:
-            cmd = f"firejail --net=none --read-only=/ --private={root} {cmd}"
+            cmd = f"firejail --net=none --read-only=/ --whitelist={path} {cmd}"
 
         return cmd
 

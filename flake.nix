@@ -46,7 +46,8 @@
             pkgs.jdk23
 
             # C# development
-            pkgs.mono
+            pkgs.dotnet-sdk_9
+            pkgs.dotnet-runtime_9
           ];
 
           shellHook = ''
