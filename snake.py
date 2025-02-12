@@ -251,7 +251,7 @@ class AI(Player):
 
         use_firejail = os.environ.get("FIREJAIL_AVAILABLE") == "1"
         if use_firejail:
-            cmd = f"firejail --net=none --read-only=/ --whitelist={path} {cmd}"
+            cmd = f"firejail --net=none --read-only=/ --whitelist={path.parent} {cmd}"
 
         return cmd
 
