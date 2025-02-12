@@ -239,7 +239,7 @@ class AI(Player):
         use_firejail = os.environ.get("FIREJAIL_AVAILABLE") == "1"
 
         if use_firejail:
-            root = '/home/debian/Dijkstra-Chan/games/Concours-Snake/ai'
+            root = "/home/debian/Dijkstra-Chan/games/Concours-Snake/ais"
             progPath = os.path.relpath(progPath, root)
 
         if not path.is_file():
@@ -259,7 +259,7 @@ class AI(Player):
                 cmd = f"./{progPath}"
 
         if use_firejail:
-            cmd = f'firejail --net=none --read-only=/ --private={root} {cmd}'
+            cmd = f"firejail --net=none --read-only=/ --private={root} {cmd}"
 
         return cmd
 
