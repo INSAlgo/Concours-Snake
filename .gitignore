@@ -5,6 +5,7 @@ out/*
 *.out
 __pycache__/*
 ai/*
+ais/*
 old-ai/*
 log
 obj/*

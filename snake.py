@@ -247,7 +247,7 @@ class AI(Player):
             case ".class":
                 cmd = f"java -cp {path.parent} {path.stem}"
             case _:
-                cmd = f"./{path}"
+                cmd = f"{path}"
 
         use_firejail = os.environ.get("FIREJAIL_AVAILABLE") == "1"
         if use_firejail:
