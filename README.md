@@ -30,6 +30,13 @@ La communication avec votre programme est automatisée. Les entrées se présent
  - Sur la troisième ligne, 2 entiers séparés par un espace : `N` (2 <= `N` <= 4) le nombre de joueurs (pour le concours, on aura toujours `N` = 2, mais vous pouvez supporter des parties multijoueurs si ça vous amuse). Et `P` le tour auquel votre programme commence à jouer (1 <= `P` <= `N`).
  - Sur les `N` lignes suivantes, 2 entiers séparés par un espace : `X`<sub>`i`</sub> et `Y`<sub>`i`</sub> la position de départ du joueur `i`.
 
+Contraintes :  
+`2 <= W <= 50`  
+`2 <= H <= 50`  
+`1 <= M <= 10`  
+
+Temps d'exécution 'garanti': 1 sec
+
 Votre programme doit ensuite supporter une boucle de jeu :
 
  - Lire le coup de votre adversaire : une chaine de charactères sous la forme `move P DIR` avec `P` le numéro du joueur et DIR la direction (parmi `up`, `down`, `left`, `right`) dans laquelle l'adversaire s'est déplacé d'une case.
