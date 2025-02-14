@@ -29,7 +29,9 @@
 
             # Python development
             pythonPackages.python
-            pythonPackages.pillow
+
+            # JS development
+            pkgs.nodejs
 
             # C/C++ development
             pkgs.gcc
@@ -38,14 +40,14 @@
             pkgs.valgrind
 
             # Rust development
-            pkgs.rustup
-            pkgs.cargo
+            pkgs.rustc
 
             # Java development
             pkgs.jdk23
 
             # C# development
-            pkgs.mono
+            pkgs.dotnet-sdk_9
+            pkgs.dotnet-runtime_9
           ];
 
           shellHook = ''
