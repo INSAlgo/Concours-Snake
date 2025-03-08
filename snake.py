@@ -399,10 +399,6 @@ class Board:
         body = self.bodies[i]
         x, y = body[0]
 
-        if (self.turn // len(self.bodies)) % self.growth_rate != 0:
-            xt, yt = body.pop()
-            self.grid[yt][xt] = 0
-
         nx, ny = x + dx, y + dy
         if not (0 <= nx < self.w and 0 <= ny < self.h):
             raise MoveError("Out of bounds")
@@ -412,6 +408,10 @@ class Board:
 
         self.grid[ny][nx] = i + 1
         body.appendleft((nx, ny))
+
+        if (self.turn // len(self.bodies)) % self.growth_rate != 0:
+            tail = body.pop()
+            self.grid[tail[1]][tail[0]] = 0
 
     def display(self):
         out = StringIO()
