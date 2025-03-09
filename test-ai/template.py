@@ -1,41 +1,49 @@
-W, H, N, S = map(int, input().split())
+import sys
 
-# Fonction pour savoir à quelle hauteur va tomber pion
-def fallHeight(board, x):
-    y = len(board[x])
-    while board[x][y - 1] == 0 and y > 0:
-        y -= 1
-    return y
+W, H = map(int, input().split())
+G = int(input())
+N, P = map(int, input().split())
+players = [tuple(map(int, input().split())) for _ in range(N)]
 
-# Calcul du meilleur coup à jouer étant donné l'état de la grille
-def strategy(board):
-    # Recherche de la première colonne non pleine
-    x = 0
-    while board[x][H - 1] != 0:
-        x += 1
-    return x
+pos = players[P-1]
+taken = set([pos])
 
-def main():
+dir = 1
 
-    board = [[0 for _ in range(H)] for _ in range(W)]
-    player = 0
+def is_clear(x, y):
+	return 0 <= x < W and 0 <= y < H and (x, y) not in taken
 
-    while True:
-        player = player % N + 1
 
-        # Tour de notre IA
-        if player == S:
-            x = strategy(board)
-            print(f"> {x} {fallHeight(board, x)}")  # Debug
-            print(x)
-        # Tour adversaire
-        else:
-            x = int(input())
+def handle_enemy():
+	move = input()
 
-        # Mise à jour de la grille en interne
-        if x >= 0 :
-            y = fallHeight(board, x)
-            board[x][y] = player
+t = 0
+while True:
+	if t % N == P-1:
+		for d in (dir, -dir):
+			nx, ny = pos[0] + d, pos[1]
+			if is_clear(nx, ny):
+				dir = d
+				pos = (nx, ny)
+				match dir:
+					case 1:
+						print('down')
+					case -1:
+						print('up')
+				break
+		else:
+			nx, ny = pos[0], pos[1] + 1
+			if is_clear(nx, ny):
+				pos = (nx, ny)
+				print('right')
+			else:
+				nx, ny = pos[0], pos[1] - 1
+				pos = (nx, ny)
+				print('left')
+			dir = -dir
 
-if __name__ == "__main__":
-    main()
+		taken.add(pos)
+	else:
+		handle_enemy()
+	t = t + 1
+	sys.stdout.flush()

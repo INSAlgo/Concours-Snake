@@ -48,6 +48,8 @@ Pour permettre le debug, les sorties commençant par `>` seront transmises à l'
 
 Un exemple d'IA très simple en Python est donné : [template.py](https://github.com/INSAlgo/Concours-Snake/blob/main/test-ai/template.py). Vous pouvez vous en servire de base pour votre IA.
 
+⚠️ Le déplacement d'un snake se fait de la tête à la queue. Il n'est donc pas possible de se déplacer sur la case occupée par votre queue.
+
 ## Tester un programme en local
 
 Récupérez le script [snake.py](https://github.com/INSAlgo/Concours-Snake/blob/main/snake.py).
