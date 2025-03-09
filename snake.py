@@ -234,7 +234,10 @@ class AI(Player):
         Returns:
             `str`: the command to start the AI
         """
-        path = Path(prog_path).resolve(strict=True)
+        try:
+            path = Path(prog_path).resolve(strict=True)
+        except FileNotFoundError:
+            return None
 
         match path.suffix:
             case ".py":
@@ -280,6 +283,12 @@ class AI(Player):
         # Specify here what parameters are required to start a game for an AI player.
         await super().start_game(*args, **kwargs)
         cmd = AI.prepare_command(self.prog_path)
+        if not cmd:
+            await Player.print(f"File not found: {self.prog_path}")
+            await self.lose_game()
+            self.prog = None
+            return
+
         self.prog = await asyncio.create_subprocess_shell(
             cmd,
             stdin=asyncio.subprocess.PIPE,
@@ -346,11 +355,14 @@ class AI(Player):
         return await AI.sanithize(progInput, **kwargs)
 
     async def tell_move(self, move: ValidInput):
-        if self.prog.stdin:
+        if self.prog and self.prog.stdin:
             # The AIs should keep track of who's playing themselves.
             self.prog.stdin.write(f"{move}\n".encode())
 
     async def stop_game(self):
+        if not self.prog:
+            return
+
         with contextlib.suppress(ProcessLookupError):
             self.prog.terminate()
             try:
