@@ -157,6 +157,7 @@ class Player(ABC):
         img.save(fp, format="PNG")
         fp.seek(0)
         
+        return fp
 
     def __str__(self):
         return self.rendered_name
@@ -294,6 +295,7 @@ class AI(Player):
             stdin=asyncio.subprocess.PIPE,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
+            preexec_fn=os.setsid # Start subprocess in a new process group
         )
 
         if self.prog.stdin:
@@ -364,13 +366,26 @@ class AI(Player):
             return
 
         with contextlib.suppress(ProcessLookupError):
-            self.prog.terminate()
-            try:
-                await asyncio.wait_for(self.prog.wait(), timeout=10)
-            except asyncio.TimeoutError:
-                self.prog.kill()
-                await self.prog.wait()
 
+            def killer():
+                # Send SIGTERM
+                yield self.prog.terminate()
+
+                # Send SIGKILL
+                yield self.prog.kill()
+
+                # Kill the process group
+                yield os.killpg(os.getpgid(self.prog.pid), signal.SIGKILL)
+
+            for task in killer():
+                try:
+                    await asyncio.wait_for(self.prog.wait(), timeout=10)
+                except asyncio.TimeoutError:
+                    pass
+                else:
+                    return True
+
+            raise Exception("Could not kill the AI process")
 
 # Game functions
 
