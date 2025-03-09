@@ -24,9 +24,6 @@
         # development environment
         devShells.default = pkgs.mkShell {
           packages = [
-            # Julia development
-            julia
-
             # Python development
             pythonPackages.python
 
