@@ -26,8 +26,8 @@ SIDE_OFFSET = 20
 
 # Usefull emojis :
 EMOJI_NUMBERS = ("0️⃣", "1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣")
-EMOJI_COLORS = ("🟡", "🔴", "🔵", "🟢", "🟠", "🟣", "🟤", "⚪️", "⚫️")
-CODE_COLORS = ("fcd53f", "f8312f", "0074ba", "00d26a", "ff6723", "8d65c5", "6d4534", "ffffff", "000000")
+EMOJI_COLORS = ("🟡", "🔴", "🔵", "⚪️", "🟢", "🟤", "🟣", "⚫️", "🟠")
+CODE_COLORS = ("fcd53f", "f8312f", "0074ba", "ffffff", "00d26a", "6d4534", "8d65c5", "000000", "ff6723")
 CODE_COLORS = dict(zip(EMOJI_COLORS, (f'#{col}' for col in CODE_COLORS)))
 
 # what is the type of a valid move or a valid input (when it has a specific format) to use in typing
@@ -427,9 +427,10 @@ class Board:
 
     def display(self):
         out = StringIO()
+        heads = {body[0] for body in self.bodies}
         for y in range(self.h):
             for x in range(self.w):
-                out.write(EMOJI_COLORS[self.grid[y][x]])
+                out.write(EMOJI_COLORS[self.grid[y][x]] if (x, y) not in heads else EMOJI_COLORS[self.grid[y][x] + len(EMOJI_COLORS) // 2])
             out.write("\n")
         out.seek(0)
         return out
