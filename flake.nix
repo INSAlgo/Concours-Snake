@@ -45,6 +45,9 @@
             # C# development
             pkgs.dotnet-sdk_9
             pkgs.dotnet-runtime_9
+
+            # security
+            pkgs.firejail # note that NixOs being already containerized, this command interferes with the system
           ];
 
           shellHook = ''
