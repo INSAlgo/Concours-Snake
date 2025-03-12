@@ -26,6 +26,7 @@
           packages = [
             # Python development
             pythonPackages.python
+            pythonPackages.psutil
 
             # JS development
             pkgs.nodejs

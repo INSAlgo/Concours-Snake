@@ -222,7 +222,7 @@ class Human(Player):
 class AI(Player):
 
     @staticmethod
-    def prepare_command(prog_path: str | Path):
+    def prepare_command(prog_path: str | Path, player_number: int) -> str:
         """
         Prepares the command to start the AI
 
@@ -253,9 +253,15 @@ class AI(Player):
             case _:
                 cmd = f"{path}"
 
+        # A single CPU is assigned per AI
+        nb_cores = os.cpu_count()
+        if not nb_cores:
+            nb_cores = 1 # default to 1 CPU if the number of cores cannot be determined
+        assigned_core = int(player_number % nb_cores)
+
         use_firejail = os.environ.get("FIREJAIL_AVAILABLE") == "1"
         if use_firejail:
-            cmd = f"firejail --net=none --read-only=/ --whitelist={path.parent} taskset --cpu-list 0 {cmd}"
+            cmd = f"firejail --net=none --read-only=/ --whitelist={path.parent} taskset --cpu-list {assigned_core} {cmd}"
 
         return cmd
 
@@ -283,7 +289,7 @@ class AI(Player):
     async def start_game(self, *args, **kwargs):
         # Specify here what parameters are required to start a game for an AI player.
         await super().start_game(*args, **kwargs)
-        cmd = AI.prepare_command(self.prog_path)
+        cmd = AI.prepare_command(self.prog_path, self.no)
         if not cmd:
             await Player.print(f"File not found: {self.prog_path}")
             await self.lose_game()
